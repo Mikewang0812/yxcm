@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>语音厅招募外宣入职学习效果考核</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ===== 封面 ===== */
+    #cover {
+      background: #fff;
+      border-radius: 20px;
+      padding: 50px 40px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    #cover .logo { font-size: 60px; margin-bottom: 16px; }
+    #cover h1 { font-size: 26px; color: #2d2d5e; margin-bottom: 8px; font-weight: 700; }
+    #cover .sub { font-size: 15px; color: #888; margin-bottom: 30px; }
+    #cover .info-box {
+      background: #f5f3ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    #cover .info-item { text-align: center; }
+    #cover .info-item .num { font-size: 28px; font-weight: 700; color: #764ba2; }
+    #cover .info-item .label { font-size: 13px; color: #666; }
+    .btn-start {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 16px 60px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-start:hover, .btn-start:active { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.5); }
+    .btn-start:active { transform: scale(0.97); }
+
+    /* ===== 答题区 ===== */
+    #quiz { display: none; }
+
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.3);
+      border-radius: 50px;
+      height: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: #fff;
+      height: 100%;
+      border-radius: 50px;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      text-align: right;
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .question-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 36px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    .chapter-tag {
+      display: inline-block;
+      background: #f0ecff;
+      color: #764ba2;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+    .q-index {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 18px;
+      color: #1a1a2e;
+      font-weight: 600;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .options { display: flex; flex-direction: column; gap: 12px; }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 2px solid #e8e8f0;
+      border-radius: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 15px;
+      color: #333;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .option-btn:hover:not(.disabled) { border-color: #764ba2; background: #f5f3ff; }
+    .option-btn:active:not(.disabled) { transform: scale(0.99); }
+    .option-letter {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #e8e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #555;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .option-btn.correct { border-color: #2ecc71; background: #eafaf1; }
+    .option-btn.correct .option-letter { background: #2ecc71; color: #fff; }
+    .option-btn.wrong { border-color: #e74c3c; background: #fdf0ef; }
+    .option-btn.wrong .option-letter { background: #e74c3c; color: #fff; }
+    .option-btn.highlight { border-color: #2ecc71; background: #eafaf1; }
+    .option-btn.highlight .option-letter { background: #2ecc71; color: #fff; }
+    .option-btn.disabled { cursor: default; }
+
+    .feedback-box {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+    .feedback-box.correct-fb { background: #eafaf1; color: #27ae60; border-left: 4px solid #2ecc71; }
+    .feedback-box.wrong-fb { background: #fdf0ef; color: #c0392b; border-left: 4px solid #e74c3c; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    .btn-next {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 36px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-next:hover, .btn-next:active { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+    .btn-next:active { transform: scale(0.97); }
+
+    /* ===== 结果页 ===== */
+    #result { display: none; }
+    .result-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .result-header { text-align: center; margin-bottom: 30px; }
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .score-circle .big-score { font-size: 48px; line-height: 1; }
+    .score-circle .score-label { font-size: 14px; margin-top: 4px; }
+    .score-excellent { background: linear-gradient(135deg, #f7971e, #ffd200); color: #fff; }
+    .score-good { background: linear-gradient(135deg, #56ab2f, #a8e063); color: #fff; }
+    .score-pass { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+    .score-fail { background: linear-gradient(135deg, #e74c3c, #f39c12); color: #fff; }
+
+    .result-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 24px; font-weight: 700; color: #2d2d5e; }
+    .stat-lbl { font-size: 13px; color: #999; }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2d2d5e;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8e8f0;
+    }
+    .section-title.error-title { color: #e74c3c; }
+
+    .error-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 30px; }
+    .error-item {
+      background: #fdf8f8;
+      border: 1px solid #fadbd8;
+      border-left: 4px solid #e74c3c;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .error-item .q-num { font-size: 12px; color: #e74c3c; font-weight: 600; margin-bottom: 6px; }
+    .error-item .q-body { font-size: 15px; color: #333; font-weight: 600; margin-bottom: 10px; line-height: 1.5; }
+    .error-item .answer-row { font-size: 14px; margin-bottom: 4px; }
+    .error-item .my-ans { color: #c0392b; }
+    .error-item .correct-ans { color: #27ae60; font-weight: 600; }
+    .error-item .explain { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; background: #fff; border-radius: 6px; padding: 8px 12px; }
+
+    .all-correct-box {
+      text-align: center;
+      padding: 30px;
+      background: #eafaf1;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .all-correct-box .emoji { font-size: 50px; margin-bottom: 10px; }
+    .all-correct-box p { color: #27ae60; font-size: 16px; font-weight: 600; }
+
+    .btn-retry {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-retry:hover, .btn-retry:active { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.5); }
+    .btn-retry:active { transform: scale(0.97); }
+
+    @media (max-width: 500px) {
+      .question-card { padding: 22px 18px; }
+      .q-text { font-size: 16px; }
+      #cover { padding: 36px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 封面 -->
+  <div id="cover">
+    <div class="logo">🎙️</div>
+    <h1>语音厅招募外宣入职考核</h1>
+    <p class="sub">《语音厅招募外宣入职学习资料》学习效果测评</p>
+    <div class="info-box">
+      <div class="info-item"><div class="num">20</div><div class="label">考题数量</div></div>
+      <div class="info-item"><div class="num">100</div><div class="label">总分</div></div>
+      <div class="info-item"><div class="num">5分</div><div class="label">每题分值</div></div>
+      <div class="info-item"><div class="num">无限</div><div class="label">可重复测试</div></div>
+    </div>
+    <p style="font-size:13px;color:#999;margin-bottom:24px;">涵盖7大章节 · 全部单选题 · 答完即出结果</p>
+    <button class="btn-start" onclick="startQuiz()">开始考核</button>
+  </div>
+
+  <!-- 答题区 -->
+  <div id="quiz">
+    <div class="progress-text" id="progressText">第 1 题 / 共 20 题</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar" style="width:5%"></div>
+    </div>
+    <div class="question-card">
+      <div class="chapter-tag" id="chapterTag"></div>
+      <div class="q-index" id="qIndex"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optionsBox"></div>
+      <div class="feedback-box" id="feedbackBox"></div>
+      <div class="nav-bar">
+        <button class="btn-next" id="btnNext" onclick="nextQuestion()">下一题 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div id="result">
+    <div class="result-card">
+      <div class="result-header">
+        <div class="score-circle" id="scoreCircle">
+          <div class="big-score" id="bigScore"></div>
+          <div class="score-label">分</div>
+        </div>
+        <h2 id="scoreTitle" style="font-size:20px;color:#2d2d5e;margin-bottom:6px;"></h2>
+        <p id="scoreDesc" style="font-size:14px;color:#888;"></p>
+      </div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-num" id="statCorrect"></div><div class="stat-lbl">答对题数</div></div>
+        <div class="stat-item"><div class="stat-num" id="statWrong"></div><div class="stat-lbl">答错题数</div></div>
+        <div class="stat-item"><div class="stat-num" id="statScore"></div><div class="stat-lbl">最终得分</div></div>
+      </div>
+      <div id="errorSection"></div>
+      <button class="btn-retry" onclick="retryQuiz()">🔄 重新测试</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    chapter: "第一章：赛道背景",
+    text: "根据学习资料，2026年声音经济市场规模预计突破多少？",
+    options: ["1000亿", "3000亿", "5000亿", "8000亿"],
+    answer: 2,
+    explain: "资料明确指出：2026年声音经济市场规模突破5000亿。"
+  },
+  {
+    chapter: "第一章：赛道背景",
+    text: "在与主播沟通时，人事应以怎样的角色自我定位？",
+    options: ["求职顾问", "销售人员", "职业规划师和公会实力代言人", "公司行政"],
+    answer: 2,
+    explain: "资料强调：你不是求人来上班的，你是"职业规划师"和"公会实力代言人"。"
+  },
+  {
+    chapter: "第一章：赛道背景",
+    text: "学习资料中描述语音厅赛道时，以下哪项说法是正确的？",
+    options: [
+      "语音厅需要露脸，对颜值要求高",
+      "语音厅是"声音经济"，只看声音、情商、赚钱欲望",
+      "语音厅流水增长慢，属于小众赛道",
+      "平台不支持音频直播"
+    ],
+    answer: 1,
+    explain: "资料原文：抖音语音厅/点唱厅是"声音经济"的巅峰，不看长相，只看声音、情商、赚钱欲望。"
+  },
+  {
+    chapter: "第二章：精准画像",
+    text: "根据精准招募画像，目标主播的年龄区间应是？",
+    options: ["16-25岁", "18-33岁", "20-35岁", "25-40岁"],
+    answer: 1,
+    explain: "资料明确：年龄区间18-33岁，声音状态最佳，对直播接受度最高。"
+  },
+  {
+    chapter: "第二章：精准画像",
+    text: "以下哪项是主播能克服前期枯燥、长期播下去的"唯一动力"？",
+    options: ["对直播感兴趣", "声音条件好", "极度缺钱或想搞副业", "有直播经验"],
+    answer: 2,
+    explain: "资料原文：极度缺钱或想搞副业，是主播能克服前期枯燥、长期播下去的唯一动力。"
+  },
+  {
+    chapter: "第二章：精准画像",
+    text: "以下哪类人群不属于学习资料中提到的精准招募细分人群？",
+    options: ["全职妈妈", "大学生", "深夜斜杠青年", "退休人员"],
+    answer: 3,
+    explain: "资料列出的细分人群为：全职妈妈、自由职业/待业青年、大学生、深夜斜杠青年。退休人员不在目标范围内。"
+  },
+  {
+    chapter: "第三章：核心竞争优势",
+    text: "我们给主播的分成点位是多少？这是什么级别？",
+    options: ["35%，行业平均", "40%，较高水平", "45%，抖音平台允许的最高分成", "50%，超过平台上限"],
+    answer: 2,
+    explain: "资料话术：我们给主播的点位直接拉满到45%，这是抖音平台允许的最高分成点位。"
+  },
+  {
+    chapter: "第三章：核心竞争优势",
+    text: "关于声卡报销政策，以下说法正确的是？",
+    options: [
+      "入职即报销声卡费用",
+      "入职播满一个月，声卡费用公司全额报销",
+      "声卡费用由主播自付，公司不报销",
+      "主播播满三个月才可申请报销"
+    ],
+    answer: 1,
+    explain: "资料原文：入职播满一个月，声卡费用公司全额报销！相当于零成本入行。"
+  },
+  {
+    chapter: "第三章：核心竞争优势",
+    text: "以下哪项不属于公司点唱厅深度包装服务？",
+    options: ["立绘形象设计", "个人作品剪辑", "设计专属歌单", "提供直播间装修资金"],
+    answer: 3,
+    explain: "资料列出的深度包装服务为：立绘形象设计、个人作品剪辑、设计专属歌单。不包含直播间装修资金。"
+  },
+  {
+    chapter: "第三章：核心竞争优势",
+    text: "面对有经验的老主播，公司提供的专属扶持是？",
+    options: ["直接给保底工资", "高级运营1对1进阶培训，突破流水瓶颈", "免费提供直播设备", "保底签约奖励金"],
+    answer: 1,
+    explain: "资料原文：针对有经验的主播，提供高级运营1对1进阶培训，突破流水瓶颈。"
+  },
+  {
+    chapter: "第四章：招募流程",
+    text: "第一步大面积私信拉新环节，每天私信数量要求是多少？",
+    options: ["50条以上", "100条以上", "200条以上", "300条以上"],
+    answer: 2,
+    explain: "资料要求：针对目标群体进行高频率私信，要求每天200+。"
+  },
+  {
+    chapter: "第四章：招募流程",
+    text: "招募流程分为三步，正确的顺序是？",
+    options: [
+      "加绿泡泡→私信拉新→加工会入职",
+      "大面积私信拉新→加绿泡泡深度沟通→加工会入职",
+      "加工会入职→大面积私信→深度沟通",
+      "电话沟通→线下面谈→签约"
+    ],
+    answer: 1,
+    explain: "资料流程：第一步大面积私信拉新（撒网）→第二步加绿泡泡深度沟通（吸引）→第三步加工会入职（转化）。"
+  },
+  {
+    chapter: "第四章：招募流程",
+    text: "针对纯新人主播，沟通时应重点强调哪些方面来促成入职？",
+    options: [
+      "重点聊45%分成和1对1专业培训",
+      "重点聊保底待遇、主播收入、声卡报销、立绘包装、视频剪辑",
+      "重点聊公司规模和未来上市计划",
+      "重点聊竞争对手的不足"
+    ],
+    answer: 1,
+    explain: "资料对纯新人的沟通策略：重点聊保底待遇、主播收入、声卡报销、立绘包装、视频剪辑，直接吸引其加工会入职。"
+  },
+  {
+    chapter: "第五章：朋友圈经营",
+    text: "朋友圈每天必发的三个时间节点是？",
+    options: ["8:00、12:00、18:00", "9:00、15:00、21:00", "11:00、18:00、22:00", "10:00、14:00、20:00"],
+    answer: 2,
+    explain: "资料原文：节奏——11:00、18:00、22:00三次必发。"
+  },
+  {
+    chapter: "第五章：朋友圈经营",
+    text: "以下哪类内容不属于朋友圈"四类必发内容"？",
+    options: ["流水与钱（晒爆单截图）", "福利与报销（晒声卡报销截图）", "扶持案例", "公司团建活动日常"],
+    answer: 3,
+    explain: "四类必发内容为：流水与钱、福利与报销、扶持案例、招募急召。公司团建日常不在其中。"
+  },
+  {
+    chapter: "第五章：朋友圈经营",
+    text: "朋友圈经营的核心底层逻辑是？",
+    options: [
+      "展示个人生活，增加亲切感",
+      "建立信任、潜意识转化、专业度展示",
+      "宣传公司品牌形象",
+      "增加粉丝数量"
+    ],
+    answer: 1,
+    explain: "资料：朋友圈的作用是建立信任（虚拟办公室）、潜意识转化（长期心理按摩）、专业度展示（证明能带赚钱的领路人）。"
+  },
+  {
+    chapter: "第六章：留人环节",
+    text: "新主播入职前3天，人事应在每场直播或下麦后多长时间内必发夸奖信息？",
+    options: ["2小时内", "1小时内", "30分钟内", "第二天即可"],
+    answer: 2,
+    explain: "资料原文：每一场试档或下麦后30分钟内，必发信息夸奖。"
+  },
+  {
+    chapter: "第六章：留人环节",
+    text: "主播入职第4-10天通常进入"怀疑期"，正确的处理话术是？",
+    options: [
+      "如果感觉不适合就算了，不要强留",
+      ""现在是账号权重积累期，大家都是这么过来的，播满一个月声卡就全报销了"",
+      ""你的表现已经超过同期很多主播了"",
+      ""我们马上给你调整档位"（只说不做）"
+    ],
+    answer: 1,
+    explain: "资料原话术：现在是账号权重积累期，大家都是这么过来的，只要播满一个月，声卡钱公司就全报销了，现在走太亏了。"
+  },
+  {
+    chapter: "第六章：留人环节",
+    text: "主播受委屈或与游客发生冲突时，人事应如何处理？",
+    options: [
+      "保持中立，客观分析双方对错",
+      "先安抚游客，再安抚主播",
+      "第一时间无条件站在主播这边安抚",
+      "让运营去处理，人事不介入"
+    ],
+    answer: 2,
+    explain: "资料原文：主播受委屈或吵架时，人事必须第一时间无条件站在主播这边安抚。"
+  },
+  {
+    chapter: "第七章：每日硬指标",
+    text: "以下哪项符合人事每日产出硬指标的要求？",
+    options: [
+      "私信100+，加绿泡泡1-2人，推人1人/天",
+      "私信150+，加绿泡泡3-5人，推人2人/天",
+      "私信200+，加绿泡泡5-10人，推人3人/天",
+      "私信50+，加绿泡泡1人，推人1人/周"
+    ],
+    answer: 1,
+    explain: "资料硬指标：私信数量150+，加绿泡泡成功3-5人，推人数2人/每天，8人/周。"
+  }
+];
+
+let current = 0;
+let score = 0;
+let userAnswers = [];
+let answered = false;
+
+function startQuiz() {
+  current = 0;
+  score = 0;
+  userAnswers = [];
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  document.getElementById('progressText').textContent = `第 ${current + 1} 题 / 共 ${total} 题`;
+  document.getElementById('progressBar').style.width = `${((current + 1) / total) * 100}%`;
+  document.getElementById('chapterTag').textContent = q.chapter;
+  document.getElementById('qIndex').textContent = `第 ${current + 1} 题（共 ${total} 题 · 每题5分）`;
+  document.getElementById('qText').textContent = q.text;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectOption(i, btn);
+    box.appendChild(btn);
+  });
+
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('feedbackBox').className = 'feedback-box';
+  document.getElementById('btnNext').style.display = 'none';
+}
+
+function selectOption(idx, btn) {
+  if (answered) return;
+  event.preventDefault();
+  event.stopPropagation();
+  answered = true;
+  const q = questions[current];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.classList.add('disabled'));
+
+  const isCorrect = (idx === q.answer);
+  const fb = document.getElementById('feedbackBox');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box correct-fb';
+    fb.textContent = '✅ 回答正确！' + q.explain;
+    score += 5;
+    userAnswers.push({ qIndex: current, correct: true, chosen: idx });
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.answer].classList.add('highlight');
+    fb.className = 'feedback-box wrong-fb';
+    fb.innerHTML = `❌ 回答错误。正确答案是 <strong>${['A','B','C','D'][q.answer]}</strong>。${q.explain}`;
+    userAnswers.push({ qIndex: current, correct: false, chosen: idx });
+  }
+
+  fb.style.display = 'block';
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.style.display = 'block';
+  btnNext.textContent = current < questions.length - 1 ? '下一题 →' : '查看结果 🎯';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+
+  const correctCount = userAnswers.filter(a => a.correct).length;
+  const wrongCount = questions.length - correctCount;
+
+  document.getElementById('bigScore').textContent = score;
+  document.getElementById('statCorrect').textContent = correctCount;
+  document.getElementById('statWrong').textContent = wrongCount;
+  document.getElementById('statScore').textContent = score + '分';
+
+  const circle = document.getElementById('scoreCircle');
+  let titleText, descText, circleClass;
+  if (score >= 90) {
+    circleClass = 'score-excellent'; titleText = '🏆 优秀！'; descText = '你已充分掌握入职学习资料，可以上岗了！';
+  } else if (score >= 80) {
+    circleClass = 'score-good'; titleText = '👍 良好！'; descText = '掌握不错，再巩固错题就完美了！';
+  } else if (score >= 60) {
+    circleClass = 'score-pass'; titleText = '📚 及格'; descText = '基本掌握，建议重点复习错题对应章节。';
+  } else {
+    circleClass = 'score-fail'; titleText = '❗ 未达标'; descText = '需要重新学习资料，加油！';
+  }
+  circle.className = 'score-circle ' + circleClass;
+  document.getElementById('scoreTitle').textContent = titleText;
+  document.getElementById('scoreDesc').textContent = descText;
+
+  const errorSection = document.getElementById('errorSection');
+  const errors = userAnswers.filter(a => !a.correct);
+
+  if (errors.length === 0) {
+    errorSection.innerHTML = `
+      <div class="all-correct-box">
+        <div class="emoji">🎉</div>
+        <p>全部答对，太厉害了！</p>
+      </div>`;
+  } else {
+    const letters = ['A', 'B', 'C', 'D'];
+    let html = `<div class="section-title error-title">❌ 错题详情（共 ${errors.length} 题）</div><div class="error-list">`;
+    errors.forEach(e => {
+      const q = questions[e.qIndex];
+      html += `
+        <div class="error-item">
+          <div class="q-num">第 ${e.qIndex + 1} 题 · ${q.chapter}</div>
+          <div class="q-body">${q.text}</div>
+          <div class="answer-row my-ans">你的答案：${letters[e.chosen]}. ${q.options[e.chosen]}</div>
+          <div class="answer-row correct-ans">✅ 正确答案：${letters[q.answer]}. ${q.options[q.answer]}</div>
+          <div class="explain">💡 ${q.explain}</div>
+        </div>`;
+    });
+    html += '</div>';
+    errorSection.innerHTML = html;
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function retryQuiz() {
+  startQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
