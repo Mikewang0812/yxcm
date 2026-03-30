@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宜行传媒主播待遇新政考核（2026.03版）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 28px; margin-bottom: 10px; }
+        .header .subtitle { color: #666; font-size: 14px; }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box p { color: #555; font-size: 14px; line-height: 1.6; }
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .center { text-align: center; }
+        
+        /* 姓名艺名输入框 */
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group input::placeholder { color: #aaa; }
+        
+        /* 题目样式 */
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            transition: border-color 0.3s;
+        }
+        .question-card.correct { border-color: #4caf50; background: #f1f8f1; }
+        .question-card.wrong { border-color: #f44336; background: #fff5f5; }
+        .question-num {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .question-type {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .question-type.scenario { background: #e91e63; }
+        .question-text { font-size: 16px; color: #333; margin: 15px 0; line-height: 1.6; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .option:hover { background: #e8e8e8; }
+        .option.selected { background: #e3f2fd; border-color: #2196f3; }
+        .option.correct-answer { background: #c8e6c9; border-color: #4caf50; }
+        .option.wrong-answer { background: #ffcdd2; border-color: #f44336; }
+        .option-label {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background: #666;
+            color: white;
+            border-radius: 50%;
+            margin-right: 12px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .option.selected .option-label { background: #2196f3; }
+        .option.correct-answer .option-label { background: #4caf50; }
+        .option.wrong-answer .option-label { background: #f44336; }
+        .option-text { flex: 1; line-height: 1.5; }
+        .explain {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            display: none;
+        }
+        .explain.show { display: block; }
+        
+        /* 结果页面 */
+        .result-card { text-align: center; }
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+        }
+        .score-num { font-size: 48px; font-weight: bold; }
+        .score-label { font-size: 14px; opacity: 0.9; }
+        .result-msg { font-size: 20px; color: #333; margin-bottom: 10px; }
+        .result-detail { color: #666; margin-bottom: 25px; }
+        .user-info-display {
+            background: #f0f4ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .user-info-display p { color: #333; font-size: 16px; margin: 5px 0; }
+        .user-info-display span { font-weight: 600; color: #667eea; }
+        .hidden { display: none; }
+        
+        /* 进度条 */
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .progress-text { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页面 -->
+        <div id="startPage" class="card">
+            <div class="header">
+                <h1>宜行传媒主播待遇新政考核</h1>
+                <p class="subtitle">2026年03月版 | 共15题 | 总分100分</p>
+            </div>
+            <div class="info-box">
+                <p><strong>考核范围：</strong>《宜行传媒主播待遇新政策2026.03.30》</p>
+                <p><strong>题目构成：</strong>12道知识点题 + 3道场景应用题</p>
+                <p><strong>考试规则：</strong>全部为单选题，答完即时反馈，可重复考试</p>
+            </div>
+            
+            <!-- 新增：姓名艺名输入 -->
+            <div style="margin-bottom: 25px;">
+                <div class="form-group">
+                    <label>姓名 <span style="color: #f44336;">*</span></label>
+                    <input type="text" id="userName" placeholder="请输入您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>艺名 <span style="color: #999;">(选填)</span></label>
+                    <input type="text" id="artName" placeholder="请输入您的艺名（如有）">
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="btn" onclick="startExam()">开始考核</button>
+            </div>
+        </div>
+        
+        <!-- 答题页面 -->
+        <div id="examPage" class="hidden">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">第 1 题 / 共 15 题</div>
+            <div id="questionContainer"></div>
+            <div class="center" style="margin-top: 20px;">
+                <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>下一题</button>
+            </div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div id="resultPage" class="card hidden">
+            <div class="result-card">
+                <div class="score-circle">
+                    <div class="score-num" id="scoreNum">0</div>
+                    <div class="score-label">分</div>
+                </div>
+                
+                <!-- 新增：显示姓名艺名 -->
+                <div class="user-info-display" id="userInfoDisplay">
+                    <p>姓名：<span id="displayName">-</span></p>
+                    <p>艺名：<span id="displayArtName">-</span></p>
+                </div>
+                
+                <div class="result-msg" id="resultMsg">考核完成</div>
+                <div class="result-detail" id="resultDetail"></div>
+                <button class="btn" onclick="restartExam()">重新考核</button>
+            </div>
+        </div>
+        
+        <!-- 答题记录 -->
+        <div id="reviewPage" class="hidden">
+            <h2 style="margin-bottom: 20px; color: #333;">答题记录回顾</h2>
+            <div id="reviewContainer"></div>
+            <div class="center" style="margin-top: 30px;">
+                <button class="btn" onclick="restartExam()">重新考核</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            // 知识点题 (1-12)
+            {
+                q: "主播待遇新政策的生效时间是什么时候？",
+                options: ["2026.03.30", "2026.03.31", "2026.04.01", "2026.04.15"],
+                answer: 1,
+                explain: "政策文件明确标注：生效时间为2026.03.31。"
+            },
+            {
+                q: "无保底全职主播的提成比例范围是多少？",
+                options: ["32%-36%", "36%-40%", "40%-44%", "44%-48%"],
+                answer: 2,
+                explain: "根据政策：无保底全职提成比例为40%-44%，其中36%日结自提，4%和奖励部分月结。"
+            },
+            {
+                q: "无保底全职主播的提成中，日结自提的比例是多少？",
+                options: ["32%", "36%", "40%", "44%"],
+                answer: 1,
+                explain: "无保底全职主播的36%是日结自提，4%和奖励部分月结。"
+            },
+            {
+                q: "3小时兼职无保底主播的提成比例范围是多少？",
+                options: ["32%-36%", "36%-40%", "40%-44%", "40%-44%"],
+                answer: 1,
+                explain: "政策规定：3小时兼职提成比例为36%-40%，其中36%日结自提，奖励部分月结。"
+            },
+            {
+                q: "音浪达到多少时，可以获得2%的返点奖励？",
+                options: ["5万及以上", "10万及以上", "15万及以上", "20万及以上"],
+                answer: 1,
+                explain: "政策规定：音浪10万及以上奖励2%返点，20万及以上奖励4%返点。"
+            },
+            {
+                q: "音浪达到20万及以上时，返点奖励比例是多少？",
+                options: ["2%", "3%", "4%", "5%"],
+                answer: 2,
+                explain: "音浪20万及以上时奖励4%返点。"
+            },
+            {
+                q: "线上全职主播（有保底）的提成比例是多少？",
+                options: ["30%", "32%", "36%", "40%"],
+                answer: 1,
+                explain: "有保底的线上全职主播提成比例为32%。"
+            },
+            {
+                q: "线上全职主播（有保底）第一个月的保底金额是多少？",
+                options: ["1500元", "2000元", "2500元", "3000元"],
+                answer: 1,
+                explain: "有保底全职主播：第1个月2000保底月结，第二个月2500，第三个月3000。"
+            },
+            {
+                q: "线上兼职主播（有保底）第三个月的保底金额是多少？",
+                options: ["1500元", "2000元", "2500元", "3000元"],
+                answer: 2,
+                explain: "有保底兼职主播：第1个月1500保底，第二个月2000，第三个月2500。"
+            },
+            {
+                q: "全职主播每月需要播满多少天？",
+                options: ["22天", "25天", "26天", "28天"],
+                answer: 2,
+                explain: "全职主播每月播满26天，有4天调休时间自己选择。"
+            },
+            {
+                q: "兼职主播每天需要直播多长时间？",
+                options: ["2小时", "3小时", "4小时", "5小时"],
+                answer: 1,
+                explain: "兼职主播每天直播3小时，一个月播满25天。"
+            },
+            {
+                q: "兼职主播每月有多少天调休时间？",
+                options: ["3天", "4天", "5天", "6天"],
+                answer: 2,
+                explain: "兼职主播每月播满25天，有5天调休时间自己选择。"
+            },
+            
+            // 场景应用题 (13-15)
+            {
+                q: "【场景题】小李是一名无保底全职主播，本月音浪达到15万。按照新政，她的返点奖励是多少？",
+                options: ["无返点奖励", "2%返点", "3%返点", "4%返点"],
+                answer: 1,
+                explain: "音浪10万及以上奖励2%返点，20万及以上奖励4%返点。小李音浪15万，在10万以上但未达到20万，所以获得2%返点。"
+            },
+            {
+                q: "【场景题】小王刚入职做线上全职主播（有保底），这是她的第二个月。请问她本月的保底金额是多少？",
+                options: ["1500元", "2000元", "2500元", "3000元"],
+                answer: 2,
+                explain: "根据有保底全职主播政策：第1个月2000保底，第二个月2500，第三个月3000。第二个月保底是2500元。"
+            },
+            {
+                q: "【场景题】小张是一名兼职主播，本月因为家里有急事请了2天假。请问她本月实际需要播满多少天才能满足要求？",
+                options: ["23天", "25天", "不用补播，请假不影响", "需要补播2天"],
+                answer: 3,
+                explain: "兼职主播要求一个月播满25天。政策说'临时有急事需要请假的，可以请假'，但请假只是允许缺勤，不影响每月播满25天的要求。小张请假2天后，仍需补播2天来凑够25天。"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let userName = "";
+        let artName = "";
+        
+        function startExam() {
+            // 获取姓名艺名
+            userName = document.getElementById('userName').value.trim();
+            artName = document.getElementById('artName').value.trim();
+            
+            // 验证姓名必填
+            if (!userName) {
+                alert('请输入姓名！');
+                document.getElementById('userName').focus();
+                return;
+            }
+            
+            document.getElementById('startPage').classList.add('hidden');
+            document.getElementById('examPage').classList.remove('hidden');
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            let html = '<div class="question-card" id="questionCard">';
+            html += '<div class="question-num">' + (currentQuestion + 1) + '</div>';
+            if (currentQuestion >= 12) {
+                html += '<span class="question-type scenario">场景应用</span>';
+            }
+            html += '<div class="question-text">' + q.q + '</div>';
+            html += '<div class="options">';
+            for (let i = 0; i < q.options.length; i++) {
+                html += '<div class="option" onclick="selectOption(' + i + ')" id="option' + i + '">';
+                html += '<span class="option-label">' + String.fromCharCode(65 + i) + '</span>';
+                html += '<span class="option-text">' + q.options[i] + '</span>';
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '<div class="explain" id="explain">' + q.explain + '</div>';
+            html += '</div>';
+            
+            container.innerHTML = html;
+            
+            // 更新进度
+            document.getElementById('progressFill').style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+            document.getElementById('progressText').textContent = '第 ' + (currentQuestion + 1) + ' 题 / 共 ' + questions.length + ' 题';
+            
+            // 更新按钮
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = true;
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? '查看结果' : '下一题';
+        }
+        
+        let selectedOption = -1;
+        
+        function selectOption(index) {
+            if (selectedOption !== -1) return;
+            
+            selectedOption = index;
+            const q = questions[currentQuestion];
+            const isCorrect = index === q.answer;
+            
+            answers.push({
+                questionIndex: currentQuestion,
+                selected: index,
+                correct: isCorrect
+            });
+            
+            const questionCard = document.getElementById('questionCard');
+            questionCard.classList.add(isCorrect ? 'correct' : 'wrong');
+            
+            const selectedEl = document.getElementById('option' + index);
+            selectedEl.classList.add('selected', isCorrect ? 'correct-answer' : 'wrong-answer');
+            
+            if (!isCorrect) {
+                document.getElementById('option' + q.answer).classList.add('correct-answer');
+            }
+            
+            document.getElementById('explain').classList.add('show');
+            
+            if (isCorrect) {
+                score += Math.round(100 / 15 * 10) / 10;
+            }
+            
+            document.getElementById('nextBtn').disabled = false;
+        }
+        
+        function nextQuestion() {
+            selectedOption = -1;
+            currentQuestion++;
+            
+            if (currentQuestion >= questions.length) {
+                showResult();
+            } else {
+                showQuestion();
+            }
+        }
+        
+        function showResult() {
+            document.getElementById('examPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            
+            const finalScore = Math.round(score);
+            document.getElementById('scoreNum').textContent = finalScore;
+            
+            // 显示姓名艺名
+            document.getElementById('displayName').textContent = userName;
+            document.getElementById('displayArtName').textContent = artName || '未填写';
+            
+            const correctCount = answers.filter(a => a.correct).length;
+            document.getElementById('resultDetail').textContent = '答对 ' + correctCount + ' 题 / 共 ' + questions.length + ' 题';
+            
+            let msg = '';
+            if (finalScore >= 90) {
+                msg = '优秀！政策掌握非常扎实！';
+            } else if (finalScore >= 80) {
+                msg = '良好！政策掌握比较熟练！';
+            } else if (finalScore >= 60) {
+                msg = '及格！建议再复习一下政策细节';
+            } else {
+                msg = '需要加强学习，建议仔细阅读政策';
+            }
+            document.getElementById('resultMsg').textContent = msg;
+            
+            showReview();
+        }
+        
+        function showReview() {
+            const container = document.getElementById('reviewContainer');
+            let html = '';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const ans = answers[i];
+                
+                html += '<div class="question-card ' + (ans.correct ? 'correct' : 'wrong') + '">';
+                html += '<div class="question-num">' + (i + 1) + '</div>';
+                if (i >= 12) {
+                    html += '<span class="question-type scenario">场景应用</span>';
+                }
+                html += '<div class="question-text">' + q.q + '</div>';
+                html += '<div class="options">';
+                for (let j = 0; j < q.options.length; j++) {
+                    let cls = 'option';
+                    if (j === ans.selected) {
+                        cls += ' selected ' + (ans.correct ? 'correct-answer' : 'wrong-answer');
+                    } else if (j === q.answer && !ans.correct) {
+                        cls += ' correct-answer';
+                    }
+                    html += '<div class="' + cls + '">';
+                    html += '<span class="option-label">' + String.fromCharCode(65 + j) + '</span>';
+                    html += '<span class="option-text">' + q.options[j] + '</span>';
+                    html += '</div>';
+                }
+                html += '</div>';
+                html += '<div class="explain show">' + q.explain + '</div>';
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+            document.getElementById('reviewPage').classList.remove('hidden');
+        }
+        
+        function restartExam() {
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('reviewPage').classList.add('hidden');
+            document.getElementById('startPage').classList.remove('hidden');
+            // 清空输入框
+            document.getElementById('userName').value = '';
+            document.getElementById('artName').value = '';
+        }
+    </script>
+</body>
+</html>
